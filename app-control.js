@@ -9,12 +9,18 @@ let unsub = null;
 function setMsg(t) { qs("#msg").textContent = t; }
 
 function parseManualToDate(manualHms) {
-  const m = manualHms.trim().match(/^(\d{1,2}):(\d{2}):(\d{2})$/);
+  // Acepta HH:MM:SS o HH:MM:SS.mmm
+  const m = manualHms.trim().match(/^(\d{1,2}):(\d{2}):(\d{2})(?:\.(\d{1,3}))?$/);
   if (!m) return null;
-  const now = new Date();
-  now.setHours(Number(m[1]), Number(m[2]), Number(m[3]), 0);
-  return now;
+
+  const h = Number(m[1]), mi = Number(m[2]), s = Number(m[3]);
+  const ms = m[4] ? Number(String(m[4]).padEnd(3, "0")) : 0;
+
+  const d = new Date();
+  d.setHours(h, mi, s, ms);
+  return d;
 }
+
 
 function renderTape(rows) {
   const tb = qs("#tape");
