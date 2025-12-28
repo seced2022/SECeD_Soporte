@@ -70,29 +70,24 @@ async function loadOrCreateRally(rallyId) {
 async function refreshLists() {
   if (!currentRallyId) return;
 
-  // TCS
+  // TCs
   const tcsRef = collection(db, "rallies", currentRallyId, "tcs");
   const tcsSnap = await getDocs(tcsRef);
   const tcs = tcsSnap.docs
     .map(d => ({ id: d.id, ...d.data() }))
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
-  const tcListEl = qs("#tcList");
-  if (tcListEl) {
-    tcListEl.textContent = tcs.map(t => `${t.id} | ${t.order} | ${t.name}`).join("\n") || "-";
-  }
+  qs("#tcList").textContent =
+    tcs.map(t => `${t.id} | ${t.order} | ${t.name}`).join("\n") || "-";
 
-  // CONTROLS
+  // Controles
   const ctrRef = collection(db, "rallies", currentRallyId, "controls");
   const ctrSnap = await getDocs(ctrRef);
   const ctr = ctrSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-  const controlListEl = qs("#controlList");
-  if (controlListEl) {
-    controlListEl.textContent = ctr
-      .map(c => `${c.id} | ${c.type} | tc=${c.tcId ?? "-"} | ord=${c.orderInTc ?? "-"} | ${c.name ?? ""}`)
+  qs("#controlList").textContent =
+    ctr.map(c => `${c.id} | ${c.type} | tc=${c.tcId ?? "-"} | ord=${c.orderInTc ?? "-"} | ${c.name ?? ""}`)
       .join("\n") || "-";
-  }
 }
 
 requireAuth({
@@ -101,12 +96,11 @@ requireAuth({
 
     if (!assertRole(profile, ["admin"])) {
       setMsg("Acceso denegado: necesitas rol admin.");
-      const saveBtn = qs("#saveBtn");
-      if (saveBtn) saveBtn.disabled = true;
+      qs("#saveBtn").disabled = true;
       return;
     }
 
-    // Cargar rally
+    // Cargar / crear rally
     qs("#loadBtn").addEventListener("click", async () => {
       const rallyId = qs("#rallyId").value.trim();
       if (!rallyId) return setMsg("Pon un Rally ID.");
@@ -138,48 +132,42 @@ requireAuth({
       qs("#testOut").textContent = `${pen.toFixed(2)} s`;
     });
 
-    // Crear / Actualizar TC
-    const addTcBtn = qs("#addTcBtn");
-    if (addTcBtn) {
-      addTcBtn.addEventListener("click", async () => {
-        if (!currentRallyId) return setMsg("Carga primero un Rally ID.");
+    // Crear / actualizar TC
+    qs("#addTcBtn").addEventListener("click", async () => {
+      if (!currentRallyId) return setMsg("Carga primero un Rally ID.");
 
-        const tcId = qs("#tcId").value.trim();
-        if (!tcId) return setMsg("TC ID vacío (ej: TC1).");
+      const tcId = qs("#tcId").value.trim();
+      if (!tcId) return setMsg("TC ID vacío (ej: TC1).");
 
-        await setDoc(doc(db, "rallies", currentRallyId, "tcs", tcId), {
-          order: Number(qs("#tcOrder").value || 0),
-          name: qs("#tcName").value.trim(),
-          status: "open",
-          updatedAt: serverTimestamp()
-        }, { merge: true });
+      await setDoc(doc(db, "rallies", currentRallyId, "tcs", tcId), {
+        order: Number(qs("#tcOrder").value || 0),
+        name: qs("#tcName").value.trim(),
+        status: "open",
+        updatedAt: serverTimestamp()
+      }, { merge: true });
 
-        setMsg(`TC guardado: ${tcId}`);
-        await refreshLists();
-      });
-    }
+      setMsg(`TC guardado: ${tcId}`);
+      await refreshLists();
+    });
 
-    // Crear / Actualizar Control
-    const addControlBtn = qs("#addControlBtn");
-    if (addControlBtn) {
-      addControlBtn.addEventListener("click", async () => {
-        if (!currentRallyId) return setMsg("Carga primero un Rally ID.");
+    // Crear / actualizar Control
+    qs("#addControlBtn").addEventListener("click", async () => {
+      if (!currentRallyId) return setMsg("Carga primero un Rally ID.");
 
-        const controlId = qs("#controlNewId").value.trim();
-        if (!controlId) return setMsg("Control ID vacío (ej: TC1_START).");
+      const controlId = qs("#controlNewId").value.trim();
+      if (!controlId) return setMsg("Control ID vacío (ej: TC1_START).");
 
-        await setDoc(doc(db, "rallies", currentRallyId, "controls", controlId), {
-          type: qs("#controlType").value,
-          tcId: qs("#controlTcId").value.trim() || null,
-          orderInTc: Number(qs("#controlOrderInTc").value || 0),
-          name: qs("#controlName").value.trim(),
-          enabled: true,
-          updatedAt: serverTimestamp()
-        }, { merge: true });
+      await setDoc(doc(db, "rallies", currentRallyId, "controls", controlId), {
+        type: qs("#controlType").value,
+        tcId: qs("#controlTcId").value.trim() || null,
+        orderInTc: Number(qs("#controlOrderInTc").value || 0),
+        name: qs("#controlName").value.trim(),
+        enabled: true,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
 
-        setMsg(`Control guardado: ${controlId}`);
-        await refreshLists();
-      });
-    }
+      setMsg(`Control guardado: ${controlId}`);
+      await refreshLists();
+    });
   }
 });
