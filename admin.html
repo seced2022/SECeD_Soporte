@@ -33,6 +33,69 @@
   </section>
 
   <section class="card">
+  <h3>Tramos (TC)</h3>
+
+  <div class="row">
+    <div>
+      <label>TC ID (ej: TC1)</label>
+      <input id="tcId" placeholder="TC1" />
+    </div>
+    <div>
+      <label>Orden</label>
+      <input id="tcOrder" type="number" value="1" />
+    </div>
+    <div>
+      <label>Nombre</label>
+      <input id="tcName" placeholder="TC1 - Tramo 1" />
+    </div>
+    <button id="addTcBtn" class="primary">Crear/Actualizar TC</button>
+  </div>
+
+  <div class="row">
+    <div>
+      <label>Control ID (ej: TC1_START / TC1_FINISH / CH1)</label>
+      <input id="controlNewId" placeholder="TC1_START" />
+    </div>
+    <div>
+      <label>Tipo</label>
+      <select id="controlType">
+        <option value="TC_START">TC_START</option>
+        <option value="TC_FINISH">TC_FINISH</option>
+        <option value="TC_INTER">TC_INTER</option>
+        <option value="CH">CH</option>
+      </select>
+    </div>
+    <div>
+      <label>TC vinculado (si aplica)</label>
+      <input id="controlTcId" placeholder="TC1" />
+    </div>
+    <div>
+      <label>Orden en TC (intermedios)</label>
+      <input id="controlOrderInTc" type="number" value="0" />
+    </div>
+    <div>
+      <label>Nombre control</label>
+      <input id="controlName" placeholder="Salida TC1" />
+    </div>
+    <button id="addControlBtn" class="primary">Crear Control</button>
+  </div>
+
+  <div class="card">
+    <h4>Listado</h4>
+    <div class="split">
+      <div>
+        <h5>TCS</h5>
+        <div id="tcList" class="small mono">-</div>
+      </div>
+      <div>
+        <h5>Controles</h5>
+        <div id="controlList" class="small mono">-</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+  <section class="card">
     <h3>Ajustes Penalizaciones CH</h3>
 
     <div class="split">
