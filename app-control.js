@@ -38,6 +38,22 @@ function renderTape(rows) {
 
 requireAuth({
   onReady: async ({ user, profile }) => {
+
+    // Reloj vivo (actualiza cada 33ms aprox)
+const clockEl = qs("#liveClock");
+if (clockEl) {
+  const tick = () => { clockEl.textContent = nowHmsMs(); };
+  tick();
+  setInterval(tick, 33);
+
+  // Click para copiar al campo manual
+  clockEl.addEventListener("click", () => {
+    qs("#manualHms").value = clockEl.textContent;
+    qs("#manualHms").focus();
+  });
+}
+ 
+    
     attachHeaderUser({ user, profile });
 
     qs("#connectBtn").addEventListener("click", async () => {
