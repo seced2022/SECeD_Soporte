@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rally Timing · Puesto</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+<header>
+  <div class="row" style="gap:14px;align-items:baseline;">
+    <div><b>Puesto</b> <span class="badge">Marcajes</span></div>
+    <a href="./visor.html">Visor</a>
+    <a href="./admin.html">Admin</a>
+  </div>
+  <div class="row" style="gap:12px;align-items:center;justify-content:flex-end;">
+    <span id="whoami" class="small"></span>
+    <button id="logoutBtn">Salir</button>
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <h3>Contexto</h3>
+    <div class="row">
+      <div>
+        <label>Rally ID</label>
+        <input id="rallyId" placeholder="rally-2026-01" />
+      </div>
+      <div>
+        <label>Control ID</label>
+        <input id="controlId" placeholder="TC1_START / TC1_FINISH / CH1 ..." />
+      </div>
+      <button id="connectBtn" class="primary">Conectar</button>
+    </div>
+    <p class="small">Guarda en <span class="mono">rallies/{rallyId}/marks/{controlId}/items</span>.</p>
+    <p id="msg" class="small"></p>
+  </section>
+
+  <section class="card">
+    <h3>Marcar</h3>
+    <div class="row">
+      <div>
+        <label>Dorsal</label>
+        <input id="dorsal" inputmode="numeric" placeholder="ej: 23" />
+      </div>
+      <button id="markBtn" class="primary">MARCAR (auto)</button>
+    </div>
+
+    <div class="row">
+      <div>
+        <label>Manual (HH:MM:SS) opcional</label>
+        <input id="manualHms" placeholder="12:34:56" />
+      </div>
+      <button id="markManualBtn">MARCAR con manual</button>
+    </div>
+    <p class="small">Manual se usa como <span class="mono">finalTs</span>. Si no, usa auto.</p>
+  </section>
+
+  <section class="card">
+    <h3>Tirilla (últimos 50)</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Hora</th>
+          <th>Dorsal</th>
+          <th>Fuente</th>
+          <th>Notas</th>
+        </tr>
+      </thead>
+      <tbody id="tape"></tbody>
+    </table>
+  </section>
+</main>
+
+<script type="module" src="./app-control.js"></script>
+</body>
+</html>

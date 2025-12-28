@@ -1,0 +1,60 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function userDoc() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data; }
+    function role() { return signedIn() ? userDoc().role : "none"; }
+    function isAdmin() { return role() == "admin"; }
+    function isOperator() { return role() == "operator"; }
+
+    match /users/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow create: if signedIn() && request.auth.uid == uid;
+      allow update: if isAdmin() || (signedIn() && request.auth.uid == uid && !("role" in request.resource.data));
+      allow delete: if false;
+    }
+
+    match /rallies/{rallyId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+
+      match /settings/{docId} {
+        allow read: if signedIn();
+        allow write: if isAdmin();
+      }
+
+      match /marks/{controlId}/items/{markId} {
+        allow read: if signedIn();
+        allow create: if isAdmin() || isOperator();
+        allow update: if isAdmin();
+        allow delete: if false;
+      }
+
+      match /results/{docId} {
+        allow read: if signedIn();
+        allow write: if isAdmin();
+      }
+
+      match /idealTimes/{teamId}/{controlId} {
+        allow read: if signedIn();
+        allow write: if isAdmin();
+      }
+
+      match /teams/{teamId} {
+        allow read: if signedIn();
+        allow write: if isAdmin();
+      }
+
+      match /controls/{controlId} {
+        allow read: if signedIn();
+        allow write: if isAdmin();
+      }
+
+      match /tcs/{tcId} {
+        allow read: if signedIn();
+        allow write: if isAdmin();
+      }
+    }
+  }
+}

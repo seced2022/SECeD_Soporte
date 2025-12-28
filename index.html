@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rally Timing · Login</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+<header>
+  <div><b>Rally Timing</b> <span class="badge">Firestore</span></div>
+  <div class="small">Login</div>
+</header>
+
+<main>
+  <div class="split">
+    <section class="card">
+      <h3>Entrar</h3>
+      <div class="row">
+        <div>
+          <label>Email</label>
+          <input id="email" type="email" autocomplete="email" placeholder="operador@..." />
+        </div>
+        <div>
+          <label>Contraseña</label>
+          <input id="pass" type="password" autocomplete="current-password" placeholder="••••••••" />
+        </div>
+      </div>
+      <div class="row">
+        <button id="loginBtn" class="primary">Login</button>
+        <button id="registerBtn">Crear usuario</button>
+      </div>
+      <p class="small">Rol en <span class="mono">users/{uid}.role</span> (admin/operator/viewer).</p>
+      <p id="msg" class="small"></p>
+    </section>
+
+    <section class="card">
+      <h3>Navegación</h3>
+      <ul>
+        <li><a href="./control.html">Puesto / Marcajes</a></li>
+        <li><a href="./visor.html">Visor (TC + CH)</a></li>
+        <li><a href="./admin.html">Admin (Penalizaciones CH)</a></li>
+      </ul>
+    </section>
+  </div>
+</main>
+
+<script type="module" src="./app-index.js"></script>
+</body>
+</html>

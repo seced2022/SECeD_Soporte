@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rally Timing · Visor</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+<header>
+  <div class="row" style="gap:14px;align-items:baseline;">
+    <div><b>Visor</b> <span class="badge">TC + CH</span></div>
+    <a href="./control.html">Puesto</a>
+    <a href="./admin.html">Admin</a>
+  </div>
+  <div class="row" style="gap:12px;align-items:center;justify-content:flex-end;">
+    <span id="whoami" class="small"></span>
+    <button id="logoutBtn">Salir</button>
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <h3>Rally</h3>
+    <div class="row">
+      <div>
+        <label>Rally ID</label>
+        <input id="rallyId" placeholder="rally-2026-01" />
+      </div>
+      <button id="loadBtn" class="primary">Cargar</button>
+    </div>
+    <p id="msg" class="small"></p>
+  </section>
+
+  <section class="card">
+    <h3>Clasificación rápida (demo)</h3>
+    <p class="small">
+      Demo fija: <span class="mono">TC1_START/FINISH</span>, <span class="mono">TC2_START/FINISH</span> y <span class="mono">CH1</span>.
+      (Luego lo hacemos dinámico con lista de tramos/controles y horarios ideales reales.)
+    </p>
+
+    <table class="table">
+      <thead>
+      <tr>
+        <th>Dorsal</th>
+        <th>TC1</th>
+        <th>TC2</th>
+        <th>Penal CH1</th>
+        <th>Total</th>
+      </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </section>
+</main>
+
+<script type="module" src="./app-visor.js"></script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rally Timing · Admin</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+<header>
+  <div class="row" style="gap:14px;align-items:baseline;">
+    <div><b>Admin</b> <span class="badge">CH</span></div>
+    <a href="./visor.html">Visor</a>
+    <a href="./control.html">Puesto</a>
+  </div>
+  <div class="row" style="gap:12px;align-items:center;justify-content:flex-end;">
+    <span id="whoami" class="small"></span>
+    <button id="logoutBtn">Salir</button>
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <h3>Rally</h3>
+    <div class="row">
+      <div>
+        <label>Rally ID</label>
+        <input id="rallyId" placeholder="ej: rally-2026-01" />
+      </div>
+      <button id="loadBtn" class="primary">Cargar / Crear</button>
+    </div>
+    <p class="small">Trabaja en <span class="mono">rallies/{rallyId}</span>.</p>
+  </section>
+
+  <section class="card">
+    <h3>Ajustes Penalizaciones CH</h3>
+
+    <div class="split">
+      <div class="card">
+        <h4>Adelanto</h4>
+        <div>
+          <label>Margen sin penalizar (seg)</label>
+          <input id="earlyMargin" type="number" value="0" />
+        </div>
+        <div class="row">
+          <div>
+            <label>Unidad (seg) (1=seg, 60=min)</label>
+            <input id="earlyUnit" type="number" value="60" />
+          </div>
+          <div>
+            <label>Penalización (seg por unidad)</label>
+            <input id="earlyRate" type="number" value="10" />
+          </div>
+        </div>
+        <div>
+          <label>Redondeo</label>
+          <select id="earlyRound">
+            <option value="ceil_unit">Subir (ceil)</option>
+            <option value="floor_unit">Bajar (floor)</option>
+            <option value="nearest_unit">Al más cercano</option>
+            <option value="none">Sin redondeo</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card">
+        <h4>Retraso</h4>
+        <div>
+          <label>Margen sin penalizar (seg)</label>
+          <input id="lateMargin" type="number" value="0" />
+        </div>
+        <div class="row">
+          <div>
+            <label>Unidad (seg) (1=seg, 60=min)</label>
+            <input id="lateUnit" type="number" value="60" />
+          </div>
+          <div>
+            <label>Penalización (seg por unidad)</label>
+            <input id="lateRate" type="number" value="10" />
+          </div>
+        </div>
+        <div>
+          <label>Redondeo</label>
+          <select id="lateRound">
+            <option value="ceil_unit">Subir (ceil)</option>
+            <option value="floor_unit">Bajar (floor)</option>
+            <option value="nearest_unit">Al más cercano</option>
+            <option value="none">Sin redondeo</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label>Máx penalización (seg) (0 = sin límite)</label>
+        <input id="maxPenalty" type="number" value="0" />
+      </div>
+      <button id="saveBtn" class="primary">Guardar</button>
+    </div>
+
+    <div class="card">
+      <h4>Prueba rápida</h4>
+      <div class="row">
+        <div>
+          <label>Delta (seg) (negativo=adelanto)</label>
+          <input id="testDelta" type="number" value="-70" />
+        </div>
+        <button id="testBtn">Calcular</button>
+        <div>
+          <label>Resultado</label>
+          <div id="testOut" class="mono">-</div>
+        </div>
+      </div>
+    </div>
+
+    <p id="msg" class="small"></p>
+  </section>
+</main>
+
+<script type="module" src="./app-admin.js"></script>
+</body>
+</html>
