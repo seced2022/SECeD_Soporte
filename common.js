@@ -98,3 +98,16 @@ export function calcChPenaltySec(deltaSec, chSettings) {
 export function assertRole(profile, allowed) {
   return allowed.includes(profile.role);
 }
+
+export function pad2(n){ return String(n).padStart(2,"0"); }
+export function pad3(n){ return String(n).padStart(3,"0"); }
+
+export function nowHmsMs() {
+  const d = new Date();
+  const hh = pad2(d.getHours());
+  const mm = pad2(d.getMinutes());
+  const ss = pad2(d.getSeconds());
+  const ms = pad3(d.getMilliseconds());
+  return `${hh}:${mm}:${ss}.${ms}`;
+}
+
