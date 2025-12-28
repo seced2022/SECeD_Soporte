@@ -1,6 +1,7 @@
 import { db } from "./firebase.js";
 import { qs, requireAuth, attachHeaderUser, calcChPenaltySec, assertRole } from "./common.js";
 import { doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
 let currentRallyId = null;
 
@@ -77,6 +78,26 @@ requireAuth({
       await loadOrCreateRally(rallyId);
       setMsg(`Rally cargado: ${rallyId}`);
     });
+
+    async function refreshLists() {
+  if (!currentRallyId) return;
+
+  const tcsRef = collection(db, "rallies", currentRallyId, "tcs");
+  const tcsSnap = await getDocs(tcsRef);
+  const tcs = tcsSnap.docs.map(d => ({ id: d.id, ...d.data() }))
+    .sort((a,b) => (a.order ?? 0) - (b.order ?? 0));
+
+  qs("#tcList").textContent = tcs.map(t => `${t.id} | ${t.order} | ${t.name}`).join("\n") || "-";
+
+  const ctrRef = collection(db, "rallies", currentRallyId, "controls");
+  const ctrSnap = await getDocs(ctrRef);
+  const ctr = ctrSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  qs("#controlList").textContent = ctr
+    .map(c => `${c.id} | ${c.type} | tc=${c.tcId ?? "-"} | ord=${c.orderInTc ?? "-"} | ${c.name ?? ""}`)
+    .join("\n") || "-";
+}
+
 
     qs("#saveBtn").addEventListener("click", async () => {
       if (!currentRallyId) return setMsg("Carga primero un Rally ID.");
