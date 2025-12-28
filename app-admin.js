@@ -1,7 +1,10 @@
 import { db } from "./firebase.js";
 import { qs, requireAuth, attachHeaderUser, calcChPenaltySec, assertRole } from "./common.js";
-import { doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
-import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+
+import {
+  doc, getDoc, setDoc, serverTimestamp,
+  collection, getDocs
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
 let currentRallyId = null;
 
@@ -42,6 +45,7 @@ function writeSettingsToUI(s) {
 async function loadOrCreateRally(rallyId) {
   const rallyRef = doc(db, "rallies", rallyId);
   const snap = await getDoc(rallyRef);
+
   if (!snap.exists()) {
     await setDoc(rallyRef, {
       name: rallyId,
@@ -53,6 +57,7 @@ async function loadOrCreateRally(rallyId) {
 
   const setRef = doc(db, "rallies", rallyId, "settings", "chPenalties");
   const setSnap = await getDoc(setRef);
+
   if (setSnap.exists()) {
     writeSettingsToUI(setSnap.data());
   } else {
@@ -62,58 +67,119 @@ async function loadOrCreateRally(rallyId) {
   }
 }
 
-requireAuth({
-  onReady: async ({ user, profile }) => {
-    attachHeaderUser({ user, profile });
-    if (!assertRole(profile, ["admin"])) {
-      setMsg("Acceso denegado: necesitas rol admin.");
-      qs("#saveBtn").disabled = true;
-      return;
-    }
-
-    qs("#loadBtn").addEventListener("click", async () => {
-      const rallyId = qs("#rallyId").value.trim();
-      if (!rallyId) return setMsg("Pon un Rally ID.");
-      currentRallyId = rallyId;
-      await loadOrCreateRally(rallyId);
-      setMsg(`Rally cargado: ${rallyId}`);
-    });
-
-    async function refreshLists() {
+async function refreshLists() {
   if (!currentRallyId) return;
 
+  // TCS
   const tcsRef = collection(db, "rallies", currentRallyId, "tcs");
   const tcsSnap = await getDocs(tcsRef);
-  const tcs = tcsSnap.docs.map(d => ({ id: d.id, ...d.data() }))
-    .sort((a,b) => (a.order ?? 0) - (b.order ?? 0));
+  const tcs = tcsSnap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
-  qs("#tcList").textContent = tcs.map(t => `${t.id} | ${t.order} | ${t.name}`).join("\n") || "-";
+  const tcListEl = qs("#tcList");
+  if (tcListEl) {
+    tcListEl.textContent = tcs.map(t => `${t.id} | ${t.order} | ${t.name}`).join("\n") || "-";
+  }
 
+  // CONTROLS
   const ctrRef = collection(db, "rallies", currentRallyId, "controls");
   const ctrSnap = await getDocs(ctrRef);
   const ctr = ctrSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-  qs("#controlList").textContent = ctr
-    .map(c => `${c.id} | ${c.type} | tc=${c.tcId ?? "-"} | ord=${c.orderInTc ?? "-"} | ${c.name ?? ""}`)
-    .join("\n") || "-";
+  const controlListEl = qs("#controlList");
+  if (controlListEl) {
+    controlListEl.textContent = ctr
+      .map(c => `${c.id} | ${c.type} | tc=${c.tcId ?? "-"} | ord=${c.orderInTc ?? "-"} | ${c.name ?? ""}`)
+      .join("\n") || "-";
+  }
 }
 
+requireAuth({
+  onReady: async ({ user, profile }) => {
+    attachHeaderUser({ user, profile });
 
+    if (!assertRole(profile, ["admin"])) {
+      setMsg("Acceso denegado: necesitas rol admin.");
+      const saveBtn = qs("#saveBtn");
+      if (saveBtn) saveBtn.disabled = true;
+      return;
+    }
+
+    // Cargar rally
+    qs("#loadBtn").addEventListener("click", async () => {
+      const rallyId = qs("#rallyId").value.trim();
+      if (!rallyId) return setMsg("Pon un Rally ID.");
+
+      currentRallyId = rallyId;
+      await loadOrCreateRally(rallyId);
+      await refreshLists();
+      setMsg(`Rally cargado: ${rallyId}`);
+    });
+
+    // Guardar penalizaciones CH
     qs("#saveBtn").addEventListener("click", async () => {
       if (!currentRallyId) return setMsg("Carga primero un Rally ID.");
+
       const payload = readSettingsFromUI();
       await setDoc(doc(db, "rallies", currentRallyId, "settings", "chPenalties"), {
         ...payload,
         updatedAt: serverTimestamp()
       }, { merge: true });
-      setMsg("Guardado.");
+
+      setMsg("Penalizaciones CH guardadas.");
     });
 
+    // Test penalización
     qs("#testBtn").addEventListener("click", () => {
       const delta = Number(qs("#testDelta").value || 0);
       const s = readSettingsFromUI();
       const pen = calcChPenaltySec(delta, s);
       qs("#testOut").textContent = `${pen.toFixed(2)} s`;
     });
+
+    // Crear / Actualizar TC
+    const addTcBtn = qs("#addTcBtn");
+    if (addTcBtn) {
+      addTcBtn.addEventListener("click", async () => {
+        if (!currentRallyId) return setMsg("Carga primero un Rally ID.");
+
+        const tcId = qs("#tcId").value.trim();
+        if (!tcId) return setMsg("TC ID vacío (ej: TC1).");
+
+        await setDoc(doc(db, "rallies", currentRallyId, "tcs", tcId), {
+          order: Number(qs("#tcOrder").value || 0),
+          name: qs("#tcName").value.trim(),
+          status: "open",
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+
+        setMsg(`TC guardado: ${tcId}`);
+        await refreshLists();
+      });
+    }
+
+    // Crear / Actualizar Control
+    const addControlBtn = qs("#addControlBtn");
+    if (addControlBtn) {
+      addControlBtn.addEventListener("click", async () => {
+        if (!currentRallyId) return setMsg("Carga primero un Rally ID.");
+
+        const controlId = qs("#controlNewId").value.trim();
+        if (!controlId) return setMsg("Control ID vacío (ej: TC1_START).");
+
+        await setDoc(doc(db, "rallies", currentRallyId, "controls", controlId), {
+          type: qs("#controlType").value,
+          tcId: qs("#controlTcId").value.trim() || null,
+          orderInTc: Number(qs("#controlOrderInTc").value || 0),
+          name: qs("#controlName").value.trim(),
+          enabled: true,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+
+        setMsg(`Control guardado: ${controlId}`);
+        await refreshLists();
+      });
+    }
   }
 });
